@@ -39,7 +39,7 @@ class PutMetrics():
     self.parse()
     metrics = self.metrics['result']
     for m in metrics:
-        print(m)
+        self.createUpdate(m)
 
 
 # name
@@ -58,9 +58,7 @@ class PutMetrics():
 # Expected polling time of data in milliseconds. Used to improve rendering of graphs for non-one-second polled metrics. (optional if updating)
 # isDisabled
 # Is this metric disabled (optional if updating)
-  def createUpdate(self,name,
-                   description=None,displayName=None,displayNameShort=None,unit=None,defaultAggregate=None,
-                   isDisabled=None,defaultResolutionMS=None):
+  def createUpdate(self,metric):
       '''
       name - Name of the metric, must be globally unique if creating
       description - Description of the metric (optional if updating)
@@ -72,26 +70,30 @@ class PutMetrics():
       isDisabled - Is this metric disabled (optional if updating)
       '''
       m = {}
-      m['name'] = name
-      if description != None:
-          m['description'] = description
+      m['name'] = metric['name']
+      if metric['description'] != None:
+          m['description'] = metric['description']
       
-      if displayName != None:
-          m['displayName'] = displayName
+      if metric['displayName'] != None:
+          m['displayName'] = metric['displayName']
       
-      if displayNameShort != None:
-          m['displayNameShort'] = displayNameShort
+      if metric['displayNameShort'] != None:
+          m['displayNameShort'] = metric['displayNameShort']
     
-      if defaultAggregate != None:
-          m['defaultAggregate'] = defaultAggregate
+      if metric['defaultAggregate'] != None:
+          m['defaultAggregate'] = metric['defaultAggregate']
           
-      if defaultResolutionMS != None:
-          m['defaultResolutionMS'] = defaultResolutionMS
+      if metric['defaultResolutionMS'] != None:
+          m['defaultResolutionMS'] = metric['defaultResolutionMS']
 
-      if defaultResolutionMS != None:
-          m['isDisabled'] = isDisabled
+#       if metric['isDisabled'] != None:
+#           m['isDisabled'] = metric['isDisabled']
           
-      r = requests.post("https://{0}/v1/metrics/{1}".format(self.apihost,name), data=payload)
+      url = "https://{0}/v1/metrics/{1}".format(self.apihost,metric['name'])
+      print(url)
+      payload = json.dumps(m)
+      headers = {'content-type': 'application/json'}
+      r = requests.put(url,data=payload,headers=headers,auth=(self.email,self.key))
       print(r)
         
 if __name__ == "__main__":
