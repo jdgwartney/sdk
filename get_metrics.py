@@ -28,6 +28,7 @@ class GetMetrics():
     self.key = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
     self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
     self.parser = argparse.ArgumentParser(description='Export metric definitions')
+    self.filter_expression = None
     
   def initialize(self):
     '''
@@ -39,9 +40,9 @@ class GetMetrics():
     else:
       level = logging.ERROR
     if self.args.patterns:
-      self.pattern = re.compile(self.args.patterns)
+      self.filter_expression = re.compile(self.args.patterns)
     else:
-      self.pattern = None
+      self.filter_expression = None
 
   def parseArgs(self):
     self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
@@ -89,10 +90,12 @@ class GetMetrics():
     Apply the criteria to filter out on the metrics required
     '''
     metrics = self.metrics['result']
+    new_metrics = []
     for m in metrics:
-      if self.args.patterns != None:
-        if self.args.patterns.match(m['name']):
-          pprint(m)
+      if self.filter_expression != None:
+        if self.filter_expression.match(m['name']):
+          new_metrics.append(m)
+    self.metrics['result'] = new_metrics
       
   def output(self):
     out = json.dumps(self.metrics,sort_keys=True,indent=4,separators=(',', ': '))
