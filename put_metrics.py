@@ -1,25 +1,54 @@
 #!/usr/bin/env python
 
-import json
-import sys
-import os
-from pprint import pprint
-import requests
-
 '''
 Sets creates or updates a metric from a JSON file
 '''
-class PutMetrics():
 
-  def __init__(self,path):
+import argparse
+import json
+import logging
+import os
+from pprint import pprint
+import sys
+
+import requests
+
+'''
+
+'''
+class MetricImport():
+
+  def __init__(self):
     self.metrics = None
-    self.path = path
+    self.parser = argparse.ArgumentParser(description='Import metric definitions')
+    self.path = None
     self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
     self.key = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
     self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+    
+  def initialize(self):
+      self.parseArgs()
+      self.path = self.args.path
+      
+    
+  def parseArgs(self):
+    '''
+    Configure handling of command line arguments
+    '''
+    self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
+    self.parser.add_argument('-e','--email',dest='email',action='store',help='e-mail used to create the account')
+    self.parser.add_argument('-f','--file',dest='path',action='store',required=True,help='Path to JSON file')
+    self.parser.add_argument('-t','--api-key',dest='apikey',required=False,action='store',help='Boundary API Key')
+    self.parser.add_argument('-v', dest='verbose', action='store_true',help='verbose mode')
 
-  def getMetricNames():
-    return self.manifest['metrics']
+    self.args = self.parser.parse_args()
+
+    # Output the collected arguments
+    logging.debug(self.args.apikey)
+    logging.debug(self.args.debug)
+    logging.debug(self.args.email)
+    logging.debug(self.args.path)
+    logging.debug(self.args.verbose)
 
   def load(self):
     '''
@@ -29,6 +58,9 @@ class PutMetrics():
     self.metrics_json = f.read()
 
   def parse(self):
+      '''
+      Parse JSON into a dictionary
+      '''
       self.metrics = json.loads(self.metrics_json)
 
   def put(self):
@@ -41,23 +73,6 @@ class PutMetrics():
     for m in metrics:
         self.createUpdate(m)
 
-
-# name
-# Name of the metric, must be globally unique if creating
-# description
-# Description of the metric (optional if updating)
-# displayName
-# Short name to use when referring to the metric (optional if updating)
-# displayNameShort
-# Terse short name when referring to the metric and space is limited, less than 15 characters preferred. (optional if updating)
-# unit
-# The units of measurement for the metric, can be percent, number, bytecount, or duration (optional if updating)
-# defaultAggregate
-# When graphing (or grouping at the 1 second interval) the aggregate function that makes most sense for this metric. Can be sum, avg, max, or min. (optional if updating)
-# defaultResolutionMS
-# Expected polling time of data in milliseconds. Used to improve rendering of graphs for non-one-second polled metrics. (optional if updating)
-# isDisabled
-# Is this metric disabled (optional if updating)
   def createUpdate(self,metric):
       '''
       name - Name of the metric, must be globally unique if creating
@@ -86,21 +101,20 @@ class PutMetrics():
       if metric['defaultResolutionMS'] != None:
           m['defaultResolutionMS'] = metric['defaultResolutionMS']
 
-#       if metric['isDisabled'] != None:
-#           m['isDisabled'] = metric['isDisabled']
+      if metric['isDisabled'] != None:
+          m['isDisabled'] = metric['isDisabled']
           
       url = "https://{0}/v1/metrics/{1}".format(self.apihost,metric['name'])
-      print(url)
+
       payload = json.dumps(m)
       headers = {'content-type': 'application/json'}
       r = requests.put(url,data=payload,headers=headers,auth=(self.email,self.key))
-      print(r)
+      if r.status_code != 200:
+        print(url)
+        print(headers)
+        print(r)
         
 if __name__ == "__main__":
-
-  if len(sys.argv) != 2:
-    sys.stderr.write("usage: {0} <path>\n".format(sys.argv[0]))
-    sys.exit(1)
-    
-  p = PutMetrics(sys.argv[1])
+  p = MetricImport()
+  p.initialize()
   p.put()
