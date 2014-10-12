@@ -20,6 +20,7 @@ Sets creates or updates a metric from a JSON file
 '''
 
 import argparse
+import errno
 import json
 import logging
 import os
@@ -39,28 +40,46 @@ class MetricExport():
     '''
     self.metrics = None
     # Get credentials and end point information TODO: Split out into another class
-    self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
-    self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
-    self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+    
     self.parser = argparse.ArgumentParser(description='Export metric definitions')
     self.filter_expression = None
-    
-  def initialize(self):
-    '''
-    Initialization operations
-    '''
-    self.parseArgs()
+
+  def getEnvironment(self):
+    try:
+      self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    except(KeyError):
+      self.email = None
+    try:
+      self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    except(KeyError):
+      self.apikey = None
+    try:
+      self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+    except(KeyError):
+        self.apihost = 'premium-api.boundary.com'
+        
+  def configureLogging(self):
+    # Handle debug logging correctly
     if self.args.debug == True:
       level = logging.DEBUG
     else:
       level = logging.ERROR
     logging.basicConfig(level=level)
+    
+  def initialize(self):
+    '''
+    Initialization operations
+    '''
+    self.getEnvironment() 
+    self.parseArgs()
+    self.configureLogging()
+    
     if self.args.patterns:
       self.filter_expression = re.compile(self.args.patterns)
     else:
       self.filter_expression = None
       
-    # If the email and API key were supplied on the commandline
+    # If the email and API key were supplied on the command line
     # then the override those in environment variables
     if self.args.email != None:
       self.email = self.args.email
@@ -70,6 +89,7 @@ class MetricExport():
     # If we do not have either an e-mail or api key then we cannot proceed
     # exit indicating invalid arguments
     if self.email == None or self.apikey == None:
+        self.parser.print_usage()
         sys.exit(errno.EINVAL)
 
 

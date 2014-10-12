@@ -19,7 +19,12 @@
 Sets creates or updates a metric from a JSON file
 '''
 
+'''
+Class definition for import metric definitions
+'''
+
 import argparse
+import errno
 import errno
 import json
 import logging
@@ -29,9 +34,7 @@ import sys
 
 import requests
 
-'''
-Class definition for import metric definitions
-'''
+
 class MetricImport():
 
   def __init__(self):
@@ -46,19 +49,35 @@ class MetricImport():
     # If environment variable is not set then fallback to the default
     if self.apihost == None:
         self.apihost = 'premium-api.boundary.com'
+  def getEnvironment(self):
+    try:
+      self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    except(KeyError):
+      self.email = None
+    try:
+      self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    except(KeyError):
+      self.apikey = None
+    try:
+      self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+    except(KeyError):
+        self.apihost = 'premium-api.boundary.com'
 
-  def initialize(self):
-    '''
-    Initialize the instance
-    '''
-    self.parseArgs()
-    
+  def configureLogging(self):
     # Handle debug logging correctly
     if self.args.debug == True:
       level = logging.DEBUG
     else:
       level = logging.ERROR
     logging.basicConfig(level=level)
+
+  def initialize(self):
+    '''
+    Initialize the instance
+    '''
+    self.getEnvironment()
+    self.parseArgs()
+    self.configureLogging()
     
     self.path = self.args.path
     
@@ -72,6 +91,7 @@ class MetricImport():
     # If we do not have either an e-mail or api key then we cannot proceed
     # exit indicating invalid arguments
     if self.email == None or self.apikey == None:
+        self.parser.print_usage()
         sys.exit(errno.EINVAL)
       
   def parseArgs(self):
