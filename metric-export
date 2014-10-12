@@ -39,6 +39,7 @@ class GetMetrics():
       level = logging.DEBUG
     else:
       level = logging.ERROR
+    logging.basicConfig(level=level)
     if self.args.patterns:
       self.filter_expression = re.compile(self.args.patterns)
     else:
@@ -89,13 +90,13 @@ class GetMetrics():
     '''
     Apply the criteria to filter out on the metrics required
     '''
-    metrics = self.metrics['result']
-    new_metrics = []
-    for m in metrics:
-      if self.filter_expression != None:
+    if self.filter_expression != None:
+      metrics = self.metrics['result']
+      new_metrics = []
+      for m in metrics:
         if self.filter_expression.match(m['name']):
           new_metrics.append(m)
-    self.metrics['result'] = new_metrics
+      self.metrics['result'] = new_metrics
       
   def output(self):
     out = json.dumps(self.metrics,sort_keys=True,indent=4,separators=(',', ': '))
