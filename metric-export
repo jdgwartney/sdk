@@ -16,7 +16,7 @@ import sys
 import requests
 
 
-class GetMetrics():
+class MetricExport():
 
   def __init__(self):
     '''
@@ -103,6 +103,6 @@ class GetMetrics():
     print(out)
         
 if __name__ == "__main__":
-  p = GetMetrics()
+  p = MetricExport()
   p.initialize()
   p.get()
