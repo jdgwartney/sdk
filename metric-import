@@ -15,14 +15,6 @@
 ### limitations under the License.
 ###
 
-'''
-Sets creates or updates a metric from a JSON file
-'''
-
-'''
-Class definition for import metric definitions
-'''
-
 import argparse
 import errno
 import errno
@@ -34,7 +26,10 @@ import sys
 
 import requests
 
-
+'''
+Class definition for import metric definitions
+Sets creates or updates a metric from a JSON file
+'''
 class MetricImport():
 
   def __init__(self):
