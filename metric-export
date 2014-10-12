@@ -40,7 +40,7 @@ class MetricExport():
     self.metrics = None
     # Get credentials and end point information TODO: Split out into another class
     self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
-    self.key = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
     self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
     self.parser = argparse.ArgumentParser(description='Export metric definitions')
     self.filter_expression = None
@@ -59,6 +59,19 @@ class MetricExport():
       self.filter_expression = re.compile(self.args.patterns)
     else:
       self.filter_expression = None
+      
+    # If the email and API key were supplied on the commandline
+    # then the override those in environment variables
+    if self.args.email != None:
+      self.email = self.args.email
+    if self.args.apikey != None:
+      self.apikey = self.args.apikey
+    
+    # If we do not have either an e-mail or api key then we cannot proceed
+    # exit indicating invalid arguments
+    if self.email == None or self.apikey == None:
+        sys.exit(errno.EINVAL)
+
 
   def parseArgs(self):
     self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
@@ -82,10 +95,10 @@ class MetricExport():
     '''
     Make an API call to get all the metrics associated with the account
     '''
-    project = split(self.key, '-')[-1]
+    project = split(self.apikey, '-')[-1]
     url = "https://{0}/project/{1}/metricsEdit".format(self.apihost, project)
     headers = {'content-type': 'application/json'}
-    r = requests.get(url, auth=(self.email, self.key))
+    r = requests.get(url, auth=(self.email, self.apikey))
     if r.status_code != 200:
       print(url)
       print(headers)
@@ -93,10 +106,11 @@ class MetricExport():
     self.metrics = json.loads(r.text)
     logging.debug(r.text)
 
-  def get(self):
+  def exportMetrics(self):
     '''
     Read the JSON file and parse into a dictionary
     '''
+    self.initialize()
     self.fetch()
     self.filter()
     self.output()
@@ -119,5 +133,4 @@ class MetricExport():
         
 if __name__ == "__main__":
   p = MetricExport()
-  p.initialize()
-  p.get()
+  p.exportMetrics()
