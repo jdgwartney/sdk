@@ -70,6 +70,6 @@ if __name__ == "__main__":
       sys.exit(1)
       
   p = PluginManifest(sys.argv[1])
-  m = p.get()
+  p.get()
   pprint(p.getManifest())
   pprint(p.getMetricNames())
