@@ -18,4 +18,4 @@ export BOUNDARY_PLUGIN_SDK_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd
 
 export PATH="$PATH:$BOUNDARY_PLUGIN_SDK_HOME"
 
-alias bsenv="env | grep BOUNDARY | sort"
+alias metric-env="env | grep BOUNDARY_PREMIUM | sort"
