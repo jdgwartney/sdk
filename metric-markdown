@@ -125,6 +125,16 @@ class MetricMarkdown():
         descLen = max(descLen,len(m['description']))
       return (displayLen,nameLen,descLen)
   
+  def escapeUnderscores(self):
+      '''
+      Escape underscores so that the markdown is correct
+      '''
+      new_metrics = []
+      for m in self.metrics:
+        m['name'] = m['name'].replace("_","\_")
+        new_metrics.append(m)
+      self.metrics = new_metrics
+  
   def printMetrics(self,m,i,d):
       '''
       Prints out table rows based on the size of the data in columns
@@ -142,6 +152,7 @@ class MetricMarkdown():
       '''
       Sends the markdown of the table to standard out
       '''
+      self.escapeUnderscores()
       m,i,d = self.getColumnLengths()
       self.printHeader(m,i,d)
       self.printMetrics(m,i,d)
