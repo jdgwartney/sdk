@@ -1,44 +1,176 @@
 #!/usr/bin/env python
+###
+### Copyright 2014, Boundary
+###
+### Licensed under the Apache License, Version 2.0 (the "License");
+### you may not use this file except in compliance with the License.
+### You may obtain a copy of the License at
+###
+###     http://www.apache.org/licenses/LICENSE-2.0
+###
+### Unless required by applicable law or agreed to in writing, software
+### distributed under the License is distributed on an "AS IS" BASIS,
+### WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+### See the License for the specific language governing permissions and
+### limitations under the License.
+###
 
+import argparse
 import json
 from pprint import pprint
+from plugin_manifest import PluginManifest
+import logging
+import os
+import sys
 
+import requests
 
-##
-## Format of output table
-##
-## |Metric Name|Metric Identifier|Description
-## |:-----------|:--------|
+'''
+Reads the plugin.json manifest file looks up the definition and then outputs a markdown table
 
-class GenerateMarkdownTable()
+Format of output table:
 
-  def __init__(self,manifest_path,metric_path):
-    self.header
-    self.manifest_path = 'plugin.json'
-    self.metric_path = 'now.json'
+|Metric Name|Metric Identifier|Description
+|:-----------|:--------|
+'''
+class MetricMarkdown():
 
-with open(metric_file) as f:
-  metric_data = json.loads(f.read())
+  def __init__(self):
+    self.path = None
+    self.apihost = None
+    self.email = None
+    self.apikey = None
+    self.parser = argparse.ArgumentParser(description='Generate Markdown from plugin.json manifest')
 
-records = metric_data['result']
+  def getEnvironment(self):
+    try:
+      self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    except(KeyError):
+      self.email = None
+    try:
+      self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    except(KeyError):
+      self.apikey = None
+    try:
+      self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+    except(KeyError):
+        self.apihost = 'premium-api.boundary.com'
+    
+  def parseArgs(self):
+    '''
+    Configure handling of command line arguments.
+    '''
+    self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
+    self.parser.add_argument('-e','--email',dest='email',action='store',help='e-mail uses to create the account')
+    self.parser.add_argument('-f','--file',dest='path',action='store',required=False,help='Path to plugin.json manifest')
+    self.parser.add_argument('-t','--api-key',dest='apikey',required=False,action='store')
+    self.parser.add_argument('-v', dest='verbose', action='store_true',help='verbose mode')
 
-# Get the maximum length of each of the columns of interest
-name_len = 0
-for r in records:
-  name_len = max(len(r['name']),name_len)
+    self.args = self.parser.parse_args()
 
-print(str(name_len))
+    # Output the collected arguments
+    logging.debug(self.args.debug)
+    logging.debug(self.args.path)
+    logging.debug(self.args.verbose)
 
-#for r in records:
-#  print(r)
+  def load(self):
+    '''
+    Read the file and parse JSON into dictionary
+    '''
+    manifest = PluginManifest(self.path)
+    manifest.get()
+    self.manifest = manifest.getManifest()
+    
+  def getMetricDefinition(self,name):
+    '''
+    Make an API call to get the metric definition
+    '''
+    metric = None
+    url = "https://{0}/v1/metrics".format(self.apihost)
+    r = requests.get(url, auth=(self.email, self.apikey))
+    if r.status_code != 200:
+      print(url)
+      print(headers)
+      print(r)
+    result = json.loads(r.text)
+    metrics = result['result']
+    
+    for m in metrics:
+      if m['name'] == name:
+        metric = m
+        break;
+    return metric
 
-  def processData():
-	x = 42
+  def printHeader(self,m,i,d):
+      '''
+      Prints out table header based on the size of the data in columns
+      '''
+      mstr = "Metric Name"
+      istr = "Metric Identifier"
+      dstr = "Description"
+      
+      print('|{0}{1}|{2}{3}|{4}{5}|'.format(mstr,' ' * (m-len(mstr)),istr,' ' * (i-len(istr)),dstr,' ' * (d-len(dstr))))           
+      print('|:{0}|:{1}|:{2}|'.format('-' * (m-1),'-' * (i-1),'-' * (d-1)))
+      
+  def getColumnLengths(self):
+      '''
+      Gets the maximum length of each column
+      '''
+      displayLen = 0
+      nameLen = 0
+      descLen = 0
+      for m in self.metrics:
+        displayLen = max(displayLen,len(m['displayName']))
+        nameLen = max(nameLen,len(m['name']))
+        descLen = max(descLen,len(m['description']))
+      return (displayLen,nameLen,descLen)
+  
+  def printMetrics(self,m,i,d):
+      '''
+      Prints out table rows based on the size of the data in columns
+      '''
+      for metric in self.metrics:
+          mstr = metric['displayName']
+          istr = metric['name']
+          dstr = metric['description']
+          mlen = m - len(mstr)
+          ilen = i - len(istr)
+          dlen = d - len(dstr)
+          print("|{0}{1}|{2}{3}|{4}{5}|".format(mstr,' ' * mlen,istr,' ' * ilen,dstr,' ' * dlen))
+      
+  def outputMarkdown(self):
+      '''
+      Sends the markdown of the table to standard out
+      '''
+      m,i,d = self.getColumnLengths()
+      self.printHeader(m,i,d)
+      self.printMetrics(m,i,d)
 
-  def generateTable(self):
-    processData()
+  def generateMarkdown(self):
+    '''
+    Look up each of the metrics and then output in Markdown
+    '''
+    self.getEnvironment()
+    self.parseArgs()
+    if self.args.path == None:
+       self.path = 'plugin.json'
+    else:
+       self.path = self.args.path
+    self.load()
+    
+    manifest = self.manifest
+    manifest_metrics = manifest['metrics']
+    
+    metrics = []
+    for m in manifest_metrics:
+      metric = self.getMetricDefinition(m)
+      if metric == None:
+        sys.stderr.write("metric name: {0} not found\n".format(m))
+      else:
+        metrics.append(metric)
+    self.metrics = metrics
+    self.outputMarkdown()
 
-
-__name__ == "__main__":
-  g = GenerateMarkdownTable('plugin.json','metrics.json')
-  g.generateTable()
+if __name__ == "__main__":
+  g = MetricMarkdown()
+  g.generateMarkdown()
