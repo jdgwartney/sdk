@@ -59,7 +59,10 @@ class MetricExport():
         self.apihost = 'premium-api.boundary.com'
         
   def configureLogging(self):
-    # Handle debug logging correctly
+    '''
+    Configure logging based on command line options
+    '''
+    # TODO: Handle debug logging correctly
     if self.args.debug == True:
       level = logging.DEBUG
     else:
@@ -135,17 +138,41 @@ class MetricExport():
     self.filter()
     self.output()
     
+  def extractFields(self,metric):
+    '''
+    Extract only the required fields for the create/update API call
+    '''
+    m = {}
+    m['defaultAggregate'] = metric['defaultAggregate']
+    m['defaultResolutionMS'] = metric['defaultResolutionMS']
+    m['description'] = metric['description']
+    m['displayName'] = metric['displayName']
+    m['displayNameShort'] = metric['displayNameShort']
+    m['isDisabled'] = metric['isDisabled']
+    m['name'] = metric['name']
+    m['unit'] = metric['unit']
+    return m
+
+  def extract(self,metrics):
+      new_metrics = []
+      for m in metrics:
+          new_metrics.append(self.extractFields(m))
+      return new_metrics
+    
   def filter(self):
     '''
     Apply the criteria to filter out on the metrics required
     '''
+    new_metrics = []
     if self.filter_expression != None:
       metrics = self.metrics['result']
-      new_metrics = []
       for m in metrics:
         if self.filter_expression.match(m['name']):
           new_metrics.append(m)
-      self.metrics['result'] = new_metrics
+    else:
+      new_metrics = self.metrics['result']
+      
+    self.metrics['result'] = self.extract(new_metrics)
       
   def output(self):
     out = json.dumps(self.metrics,sort_keys=True,indent=4,separators=(',', ': '))
