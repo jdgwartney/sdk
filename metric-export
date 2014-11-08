@@ -26,7 +26,6 @@ import logging
 import os
 from pprint import pprint
 import re
-from string import split
 import sys
 
 import requests
@@ -91,10 +90,10 @@ class MetricExport():
     
     # If we do not have either an e-mail or api key then we cannot proceed
     # exit indicating invalid arguments
+
     if self.email == None or self.apikey == None:
         self.parser.print_usage()
         sys.exit(errno.EINVAL)
-
 
   def parseArgs(self):
     self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
@@ -118,7 +117,7 @@ class MetricExport():
     '''
     Make an API call to get all the metrics associated with the account
     '''
-    project = split(self.apikey, '-')[-1]
+    project = self.apikey.split('-')[-1]
     url = "https://{0}/project/{1}/metricsEdit".format(self.apihost, project)
     headers = {'content-type': 'application/json'}
     r = requests.get(url, auth=(self.email, self.apikey))
