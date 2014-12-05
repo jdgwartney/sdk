@@ -101,29 +101,26 @@ class MetricMarkdown():
         break;
     return metric
 
-  def printHeader(self,m,i,d):
+  def printHeader(self,m,d):
       '''
       Prints out table header based on the size of the data in columns
       '''
       mstr = "Metric Name"
-      istr = "Metric Identifier"
       dstr = "Description"
       
-      print('|{0}{1}|{2}{3}|{4}{5}|'.format(mstr,' ' * (m-len(mstr)),istr,' ' * (i-len(istr)),dstr,' ' * (d-len(dstr))))           
-      print('|:{0}|:{1}|:{2}|'.format('-' * (m-1),'-' * (i-1),'-' * (d-1)))
+      print('|{0}{1}|{2}{3}|'.format(mstr,' ' * (m-len(mstr)),dstr,' ' * (d-len(dstr))))           
+      print('|:{0}|:{1}|'.format('-' * (m-1),'-' * (d-1)))
       
   def getColumnLengths(self):
       '''
       Gets the maximum length of each column
       '''
       displayLen = 0
-      nameLen = 0
       descLen = 0
       for m in self.metrics:
         displayLen = max(displayLen,len(m['displayName']))
-        nameLen = max(nameLen,len(m['name']))
         descLen = max(descLen,len(m['description']))
-      return (displayLen,nameLen,descLen)
+      return (displayLen,descLen)
   
   def escapeUnderscores(self):
       '''
@@ -135,27 +132,25 @@ class MetricMarkdown():
         new_metrics.append(m)
       self.metrics = new_metrics
   
-  def printMetrics(self,m,i,d):
+  def printMetrics(self,m,d):
       '''
       Prints out table rows based on the size of the data in columns
       '''
       for metric in self.metrics:
           mstr = metric['displayName']
-          istr = metric['name']
           dstr = metric['description']
           mlen = m - len(mstr)
-          ilen = i - len(istr)
           dlen = d - len(dstr)
-          print("|{0}{1}|{2}{3}|{4}{5}|".format(mstr,' ' * mlen,istr,' ' * ilen,dstr,' ' * dlen))
+          print("|{0}{1}|{2}{3}|".format(mstr,' ' * mlen,dstr,' ' * dlen))
       
   def outputMarkdown(self):
       '''
       Sends the markdown of the table to standard out
       '''
       self.escapeUnderscores()
-      m,i,d = self.getColumnLengths()
-      self.printHeader(m,i,d)
-      self.printMetrics(m,i,d)
+      m,d = self.getColumnLengths()
+      self.printHeader(m,d)
+      self.printMetrics(m,d)
 
   def generateMarkdown(self):
     '''
