@@ -118,7 +118,7 @@ class MetricMarkdown():
       nameLen = 0
       descLen = 0
       for f in self.fields:
-        nameLen = max(nameLen,len(f['name']))
+        nameLen = max(nameLen,len(f['title']))
         descLen = max(descLen,len(f['description']))
       return (nameLen,descLen)
       
