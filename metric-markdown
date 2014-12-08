@@ -35,6 +35,7 @@ Format of output table:
 '''
 class MetricMarkdown():
 
+
   def __init__(self):
     self.path = None
     self.apihost = None
@@ -62,7 +63,7 @@ class MetricMarkdown():
     '''
     self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
     self.parser.add_argument('-e','--email',dest='email',action='store',help='e-mail uses to create the account')
-    self.parser.add_argument('-f','--file',dest='path',action='store',required=False,help='Path to plugin.json manifest')
+    self.parser.add_argument('-f','--file',dest='path',action='store',required=False,help='Path to plugin.json manifest. Defaults to plugin.json')
     self.parser.add_argument('-t','--api-key',dest='apikey',required=False,action='store')
     self.parser.add_argument('-v', dest='verbose', action='store_true',help='verbose mode')
 
@@ -82,24 +83,23 @@ class MetricMarkdown():
     self.manifest = manifest.getManifest()
     
   def getMetricDefinition(self,name):
-    '''
-    Make an API call to get the metric definition
-    '''
-    metric = None
-    url = "https://{0}/v1/metrics".format(self.apihost)
-    r = requests.get(url, auth=(self.email, self.apikey))
-    if r.status_code != 200:
-      print(url)
-      print(headers)
-      print(r)
-    result = json.loads(r.text)
-    metrics = result['result']
+      '''
+      Make an API call to get the metric definition
+      '''
+      metric = None
+      url = "https://{0}/v1/metrics".format(self.apihost)
+      r = requests.get(url, auth=(self.email, self.apikey))
+      if r.status_code != 200:
+          print(url)
+          print(r)
+      result = json.loads(r.text)
+      metrics = result['result']
     
-    for m in metrics:
-      if m['name'] == name:
-        metric = m
-        break;
-    return metric
+      for m in metrics:
+          if m['name'] == name:
+              metric = m
+              break
+      return metric
 
   def printMetricsHeader(self,m,d):
       '''
@@ -110,8 +110,19 @@ class MetricMarkdown():
       
       print('|{0}{1}|{2}{3}|'.format(mstr,' ' * (m-len(mstr)),dstr,' ' * (d-len(dstr))))           
       print('|:{0}|:{1}|'.format('-' * (m-1),'-' * (d-1)))
+
+  def getFieldsColumnLengths(self):
+      '''
+      Gets the maximum length of each column in the field table
+      '''
+      nameLen = 0
+      descLen = 0
+      for f in self.fields:
+        nameLen = max(nameLen,len(f['title']))
+        descLen = max(descLen,len(f['description']))
+      return (nameLen,descLen)
       
-  def getColumnLengths(self):
+  def getMetricsColumnLengths(self):
       '''
       Gets the maximum length of each column
       '''
@@ -128,9 +139,19 @@ class MetricMarkdown():
       '''
       new_metrics = []
       for m in self.metrics:
-        m['name'] = m['name'].replace("_","\_")
-        new_metrics.append(m)
+          m['name'] = m['name'].replace("_","\_")
+          new_metrics.append(m)
       self.metrics = new_metrics
+
+  def printFieldsHeader(self,f,d):
+      '''
+      Prints out table header based on the size of the data in columns
+      '''
+      fstr = "Field Name"
+      dstr = "Description"
+      
+      print('|{0}{1}|{2}{3}|'.format(fstr,' ' * (f-len(fstr)),dstr,' ' * (d-len(dstr))))           
+      print('|:{0}|:{1}|'.format('-' * (f-1),'-' * (d-1)))
   
   def printMetrics(self,m,d):
       '''
@@ -144,16 +165,50 @@ class MetricMarkdown():
           print("|{0}{1}|{2}{3}|".format(mstr,' ' * mlen,dstr,' ' * dlen))
 
   def printFields(self,f,d):
+      '''
+      Prints out table rows based on the size of the data in columns
+      '''
       for field in self.fields:
-          print(field["title"])
+          fstr = field["title"]
+          dstr = field["description"]
+          flen = f - len(fstr)
+          dlen = d - len(dstr)
+          print("|{0}{1}|{2}{3}|".format(fstr,' ' * flen,dstr,' ' * dlen))
+
+  def generateFieldDefinitions(self):
+      manifest_fields = self.manifest['paramSchema']
+      fields = []
+      for f in manifest_fields:
+          fields.append(f)
+      self.fields = fields 
+    
+  def generateMetricDefinitions(self):
+      manifest_metrics = self.manifest['metrics']
+      metrics = []
+      for m in manifest_metrics:
+          metric = self.getMetricDefinition(m)
+          if metric == None:
+              sys.stderr.write("metric name: {0} not found\n".format(m))
+          else:
+              metrics.append(metric)
+
+      self.metrics = metrics
+
+  def outputFieldMarkdown(self):
+      '''
+      Sends the field definitions ot standard out
+      '''
+      f,d = self.getFieldsColumnLengths()
+
+      self.printFieldsHeader(f,d)
+      self.printFields(f,d)
 
   def outputMetricMarkdown(self):
-      
       '''
       Sends the markdown of the metric definitions to standard out
       '''
       self.escapeUnderscores()
-      m,d = self.getColumnLengths()
+      m,d = self.getMetricsColumnLengths()
 
       self.printMetricsHeader(m,d)
       self.printMetrics(m,d)
@@ -162,6 +217,7 @@ class MetricMarkdown():
       '''
       Sends the markdown to standard out
       '''
+      self.outputFieldMarkdown()
       self.outputMetricMarkdown()
 
   def generateMarkdown(self):
@@ -180,24 +236,6 @@ class MetricMarkdown():
     self.generateFieldDefinitions()
     self.outputMarkdown()
 
-  def generateFieldDefinitions(self):
-    manifest_fields = self.manifest['paramSchema']
-    fields = []
-    for f in manifest_fields:
-      print(f["name"])
-      fields.append(f)
-    self.fields = fields 
-    
-  def generateMetricDefinitions(self):
-    manifest_metrics = self.manifest['metrics']
-    metrics = []
-    for m in manifest_metrics:
-      metric = self.getMetricDefinition(m)
-      if metric == None:
-        sys.stderr.write("metric name: {0} not found\n".format(m))
-      else:
-        metrics.append(metric)
-    self.metrics = metrics
 
 if __name__ == "__main__":
   g = MetricMarkdown()
