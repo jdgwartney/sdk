@@ -63,7 +63,7 @@ class MetricMarkdown():
     '''
     self.parser.add_argument('-d','--debug',dest='debug',action='store_true',help='Enables debugging')
     self.parser.add_argument('-e','--email',dest='email',action='store',help='e-mail uses to create the account')
-    self.parser.add_argument('-f','--file',dest='path',action='store',required=False,help='Path to plugin.json manifest')
+    self.parser.add_argument('-f','--file',dest='path',action='store',required=False,help='Path to plugin.json manifest. Defaults to plugin.json')
     self.parser.add_argument('-t','--api-key',dest='apikey',required=False,action='store')
     self.parser.add_argument('-v', dest='verbose', action='store_true',help='verbose mode')
 
