@@ -35,4 +35,3 @@ The framework supports the following data sources, custom data sources can be cr
 - HTTP/HTTPS
 - Logfile
 - TCP/UDP Socket
-

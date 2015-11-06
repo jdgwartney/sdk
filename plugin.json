@@ -4,7 +4,10 @@
     "icon": "icon.png",
     "metrics" : [],
     "dashboards" : [
-        { "name": "", "layout": ""}
+        {
+          "name": "",
+          "layout": ""
+        }
     ],
     "postExtract" : "python postinstall.py",
     "paramArray": { "itemTitle": [ "name" ], "schemaTitle": "Metric Command" },

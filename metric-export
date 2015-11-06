@@ -45,6 +45,7 @@ class MetricExport():
 
   def getEnvironment(self):
     try:
+<<<<<<< HEAD
       self.email = os.environ['BOUNDARY_EMAIL']
     except(KeyError):
       self.email = None
@@ -54,6 +55,17 @@ class MetricExport():
       self.apikey = None
     try:
       self.apihost = os.environ['BOUNDARY_API_HOST']
+=======
+      self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    except(KeyError):
+      self.email = None
+    try:
+      self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    except(KeyError):
+      self.apikey = None
+    try:
+      self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+>>>>>>> 3c6d8baa6c8dd6e7139b778c126bbee13fe9bc97
     except(KeyError):
         self.apihost = 'premium-api.boundary.com'
         

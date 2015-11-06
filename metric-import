@@ -38,14 +38,21 @@ class MetricImport():
     self.parser = argparse.ArgumentParser(description='Import metric definitions')
     
     # Set defaults from environment variables
+<<<<<<< HEAD
     self.email = os.environ['BOUNDARY_EMAIL']
     self.apikey = os.environ['BOUNDARY_API_TOKEN']
     self.apihost = os.environ['BOUNDARY_API_HOST']
+=======
+    self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+>>>>>>> 3c6d8baa6c8dd6e7139b778c126bbee13fe9bc97
     # If environment variable is not set then fallback to the default
     if self.apihost == None:
         self.apihost = 'premium-api.boundary.com'
   def getEnvironment(self):
     try:
+<<<<<<< HEAD
       self.email = os.environ['BOUNDARY_EMAIL']
     except(KeyError):
       self.email = None
@@ -55,6 +62,17 @@ class MetricImport():
       self.apikey = None
     try:
       self.apihost = os.environ['BOUNDARY_API_HOST']
+=======
+      self.email = os.environ['BOUNDARY_PREMIUM_EMAIL']
+    except(KeyError):
+      self.email = None
+    try:
+      self.apikey = os.environ['BOUNDARY_PREMIUM_API_TOKEN']
+    except(KeyError):
+      self.apikey = None
+    try:
+      self.apihost = os.environ['BOUNDARY_PREMIUM_API_HOST']
+>>>>>>> 3c6d8baa6c8dd6e7139b778c126bbee13fe9bc97
     except(KeyError):
         self.apihost = 'premium-api.boundary.com'
 
