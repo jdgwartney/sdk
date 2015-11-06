@@ -1,0 +1,24 @@
+{
+        "name": "boundary-plugin-shell",
+        "version": "0.1.0",
+        "private": false,
+        "description": "Boundary plugin for premimum that uses a command or script to generate metrics",
+        "main": "index.py",
+        "devDependencies": {},
+        "repository": {
+        "type": "git",
+        "url": "https://github.com/boundary/boundary-plugin-shell"
+        },
+        "keywords": [
+                "boundary",
+                "plugin",
+                "shell"
+        ],
+        "author": "<support@boundary.com>",
+        "license": "Apache v2",
+        "bugs": {
+                "url": "https://github.com/boundary/boundary-plugin-shell/issues"
+        },
+        "engine": "python >= 2.6.6"
+}
+

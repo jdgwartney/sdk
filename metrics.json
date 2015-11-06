@@ -1,0 +1,74 @@
+{
+  "BOUNDARY_CPU_LOAD_15_MINUTE": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "CPU load in the last 15 minutes.",
+    "displayName": "CPU Load 15 Minute",
+    "displayNameShort": "Load 15 Minute",
+    "unit": "number"
+  },
+  "BOUNDARY_CPU_LOAD_1_MINUTE": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Load on the CPU in the last minute.",
+    "displayName": "CPU Load 1 Minute",
+    "displayNameShort": "Load 1 Minute",
+    "unit": "number"
+  },
+  "BOUNDARY_CPU_LOAD_5_MINUTE": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "CPU load in the last 5 minutes.",
+    "displayName": "CPU Load 5 Minute",
+    "displayNameShort": "Load 5 Minute",
+    "unit": "number"
+  },
+  "BOUNDARY_FILE_COUNT": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Collects the number of files in a directory.",
+    "displayName": "File Count",
+    "displayNameShort": "File Count",
+    "unit": "number"
+  },
+  "BOUNDARY_FILE_SPACE_CAPACITY": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Percentage used of a file system.",
+    "displayName": "File Space Capacity",
+    "displayNameShort": "File Space Capacity",
+    "unit": "percent"
+  },
+  "BOUNDARY_PORT_AVAILABILITY": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Reports on the availability of TCP/IP port.",
+    "displayName": "Port Availability",
+    "displayNameShort": "Port Availability",
+    "unit": "number"
+  },
+  "BOUNDARY_PORT_RESPONSE": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Port Response",
+    "displayName": "Port Response",
+    "displayNameShort": "Port Response",
+    "unit": "number"
+  },
+  "BOUNDARY_PROCESS_COUNT": {
+    "defaultAggregate": "AVG",
+    "defaultResolutionMS": 1000,
+    "description": "Number of processes running on a host.",
+    "displayName": "Process Count",
+    "displayNameShort": "Process Count",
+    "unit": "number"
+  },
+  "BOUNDARY_RANDOM_NUMBER": {
+    "defaultAggregate": "SUM",
+    "defaultResolutionMS": 1000,
+    "description": "An example metric definition for using the boundary plugin shell",
+    "displayName": "Random Number",
+    "displayNameShort": "Random Number",
+    "unit": "number"
+  }
+}

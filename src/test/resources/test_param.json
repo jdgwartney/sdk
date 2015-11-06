@@ -1,0 +1,26 @@
+{
+   "items": [
+      {
+         "name": "Echo foo",
+         "pollInterval": "5",
+         "command": "scripts/random.sh 0 99"
+      },
+      {
+         "name": "Echo bar",
+         "pollInterval": "5",
+         "command": "scripts/random.sh 0 99"
+      },
+      {
+         "name": "Echo bar",
+         "pollInterval": "5",
+         "command": "scripts/random.sh 0 99"
+      }
+      ,
+      {
+         "name": "Random",
+         "pollInterval": "10",
+         "command": "scripts/random.sh 0 99"
+      }
+   ],
+   "pollInterval": 1000
+}

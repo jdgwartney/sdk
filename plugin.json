@@ -1,0 +1,46 @@
+{
+    "description": "",
+    "command": "python init.py",
+    "icon": "icon.png",
+    "metrics" : [],
+    "dashboards" : [
+        { "name": "", "layout": ""}
+    ],
+    "postExtract" : "python postinstall.py",
+    "paramArray": { "itemTitle": [ "name" ], "schemaTitle": "Metric Command" },
+    "paramSchema": [
+        {
+            "title": "Name",
+            "name": "name",
+            "description": "Name of this metric configuration",
+            "type": "string",
+            "default": "",
+            "required": true
+        },
+        {
+            "title": "Poll Time (sec)",
+            "name": "pollInterval",
+            "description": "The Poll Interval to call the command. Defaults 5 seconds",
+            "type": "string",
+            "default": 5,
+            "required": false
+        },
+        {
+            "title": "Debug",
+            "name": "debug",
+            "description": "Turns on the debugging of the execution of the command",
+            "type": "boolean",
+            "default": false,
+            "required": false
+	},
+        {
+            "title": "Command",
+            "name": "command",
+            "description": "Command or script to call to provide the metric",
+            "type": "string",
+            "default": "",
+            "required": false
+        }
+    ]
+}
+
